@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ArticleDeVenteController;
+use App\Models\ArticleDeVentes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,4 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource("/artcle_ventes", ArticleDeVenteController::class);
+Route::get("artcle_ventes/paginations", [ArticleDeVenteController::class, 'paginations']);
+Route::apiResource("artcle_ventes", ArticleDeVenteController::class);

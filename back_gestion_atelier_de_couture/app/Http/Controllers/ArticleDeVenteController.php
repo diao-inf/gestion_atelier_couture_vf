@@ -28,6 +28,21 @@ class ArticleDeVenteController extends Controller
         }
     }
 
+    public function paginations(Request $request){
+        try{
+            $nbreElementParPage = $request->input('nbreElementParPage', 10);
+            $query = ArticleDeVentes::query();
+            if ($request->has('search')) {
+                $search = $request->input('search');
+                $query->where('libelle', 'like', '%' . $search . '%');
+            }
+            $data = $query->paginate($nbreElementParPage);
+            return $this->myResponse($data, "les données on été recupéreé avec succées", "200");
+        } catch (Exception $e) {
+            return $this->myResponse($e, "les données n'on pas été recupéreé avec succées", "500");
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */
