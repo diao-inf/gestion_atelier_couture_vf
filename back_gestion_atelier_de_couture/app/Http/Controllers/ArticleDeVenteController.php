@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ArticleDeVentesRequest;
+use App\Http\Resources\ArticleDeVenteRessource;
 use App\Http\Traits\ImageTrait;
 use App\Models\Article;
 use App\Models\ArticleDeVentes;
@@ -22,7 +23,7 @@ class ArticleDeVenteController extends Controller
     {
         try {
             $articlesDeVentes = ArticleDeVentes::all();
-            return $this->myResponse($articlesDeVentes, "les données on été recupéreé avec succées", "200");
+            return $this->myResponse(new ArticleDeVenteRessource($articlesDeVentes), "les données on été recupéreé avec succées", "200");
         } catch (Exception $e) {
             return $this->myResponse($e, "les données n'on pas été recupéreé avec succées", "500");
         }
@@ -37,7 +38,7 @@ class ArticleDeVenteController extends Controller
                 $query->where('libelle', 'like', '%' . $search . '%');
             }
             $data = $query->paginate($nbreElementParPage);
-            return $this->myResponse($data, "les données on été recupéreé avec succées", "200");
+            return $this->myResponse(ArticleDeVenteRessource::collection($data), "les données on été recupéreé avec succées", "200");
         } catch (Exception $e) {
             return $this->myResponse($e, "les données n'on pas été recupéreé avec succées", "500");
         }
@@ -49,11 +50,13 @@ class ArticleDeVenteController extends Controller
     public function store(ArticleDeVentesRequest $request)
     {
         try {
-            $article_conception_ids = explode(",",$request->article_conception_ids);
-            $article_conception_ids = array_map('intval', $article_conception_ids);
+            // $article_conception_ids = explode(",",$request->article_conception_ids);
+            // $article_conception_ids = array_map('intval', $article_conception_ids);
+            $article_conception_ids = collect($request->article_confections)->pluck("id");
             $reference = $request->reference;
 
-            $articlesDeConfection = Article::whereIn('id', $article_conception_ids)->get();
+            // $articlesDeConfection = Article::whereIn('id', $article_conception_ids)->get();
+            $articlesDeConfection = $request->article_confections;
 
             $coutFabricationTotal = $this->findCoutFabricationTotal($articlesDeConfection);
 
@@ -74,7 +77,7 @@ class ArticleDeVenteController extends Controller
 
             $article->stock = $request->stock;
             $article->cout_fabrigation =  $coutFabricationTotal;
-            $article->categorie_id = $request->categorie_id;
+            $article->categorie_id = $request->categorie->id;
             $article->photo = $this->upload($request->photo, $reference);
             $article->save();
 
@@ -82,7 +85,7 @@ class ArticleDeVenteController extends Controller
             $article->articles()->sync($article_conception_ids);
 
             DB::commit();
-            return $this->myResponse($article, "les données on été inséré avec succées", "200");
+            return $this->myResponse(new ArticleDeVenteRessource($article), "les données on été inséré avec succées", "200");
         } catch (Exception $e) {
             DB::rollBack();
             return $this->myResponse($e, "les données n'on pas été inséré", "500");
@@ -95,7 +98,7 @@ class ArticleDeVenteController extends Controller
     public function show(ArticleDeVentes $articleDeVentes)
     {
         try {
-            return $this->myResponse($articleDeVentes, "les données on été recupéreé avec succées", "200");
+            return $this->myResponse(new ArticleDeVenteRessource($articleDeVentes), "les données on été recupéreé avec succées", "200");
         } catch (Exception $e) {
             return $this->myResponse($e, "les données n'on pas été recupéreé avec succées", "500");
         }
@@ -107,11 +110,14 @@ class ArticleDeVenteController extends Controller
     public function update(ArticleDeVentesRequest $request, ArticleDeVentes $article)
     {
         try {
-            $article_conception_ids = explode(",", $request->article_conception_ids);
-            $article_conception_ids = array_map('intval', $article_conception_ids);
+            // $article_conception_ids = explode(",", $request->article_conception_ids);
+            // $article_conception_ids = array_map('intval', $article_conception_ids);
+            $article_conception_ids = collect($request->article_confections)->pluck("id");
             $reference = $request->reference;
     
-            $articlesDeConfection = Article::whereIn('id', $article_conception_ids)->get();
+            // $articlesDeConfection = Article::whereIn('id', $article_conception_ids)->get();
+            $articlesDeConfection = $request->article_confections;
+
     
             $coutFabricationTotal = $this->findCoutFabricationTotal($articlesDeConfection);
     
@@ -132,7 +138,7 @@ class ArticleDeVenteController extends Controller
             
             $article->stock = $request->stock;
             $article->cout_fabrigation = $coutFabricationTotal;
-            $article->categorie_id = $request->categorie_id;
+            $article->categorie_id = $request->categorie->id;
     
             if ($request->hasFile('photo')) {
                 $article->photo = $this->upload($request->file('photo'), $reference);
@@ -144,7 +150,7 @@ class ArticleDeVenteController extends Controller
     
             DB::commit();
     
-            return $this->myResponse($article, "Les données ont été mises à jour avec succès", "200");
+            return $this->myResponse(new ArticleDeVenteRessource($article), "Les données ont été mises à jour avec succès", "200");
         } catch (Exception $e) {
             DB::rollBack();
             return $this->myResponse($e, "Les données n'ont pas été mises à jour", "500");
@@ -169,7 +175,7 @@ class ArticleDeVenteController extends Controller
     
             DB::commit();
     
-            return $this->myResponse(null, "L'article a été supprimé avec succès", "200");
+            return $this->myResponse(new ArticleDeVenteRessource($article), "L'article a été supprimé avec succès", "200");
         } catch (Exception $e) {
             DB::rollBack();
             return $this->myResponse($e, "Une erreur est survenue lors de la suppression de l'article", "500");

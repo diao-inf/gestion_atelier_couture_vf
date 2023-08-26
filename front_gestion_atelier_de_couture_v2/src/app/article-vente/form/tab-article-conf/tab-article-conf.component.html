@@ -1,0 +1,35 @@
+<div class="container">
+    <div class="row my-4 bg-primary">
+        <!-- Ligne 1 -->
+        <div class="col-md-9  d-flex align-items-center text-white">
+            <h4>Liste des articles de confections nécessaires</h4>
+        </div>
+        <div class="col-md-3 bg-light border border-3 border-primary text-center">
+            <button class="btn btn-outline-primary px-4 my-2" (click)="addLine()" style="font-size: 1.2rem;"><i class="bi bi-plus-circle"></i> Ajouter une ligne</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Ligne 2 -->
+        <div class="col-md-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Libellé</th>
+                        <th>Quantité</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let line of lines; let i = index">
+                        <td><input type="text" class="form-control" [(ngModel)]="line.label"></td>
+                        <td><input type="number" class="form-control" [(ngModel)]="line.quantity"></td>
+                        <td>
+                            <button class="btn btn-danger px-3" (click)="removeLine(i)"><i class="bi bi-trash"></i> Supprimer</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
