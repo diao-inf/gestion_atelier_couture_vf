@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TabArticleConfComponent } from './tab-article-conf/tab-article-conf.component';
 
 @Component({
   selector: 'app-form',
@@ -7,10 +8,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./form.component.css']
 })
 export class FormComponent {
+  @ViewChild('childTabArticles', {static: true}) childTabArticles!: TabArticleConfComponent;
 
   articleVenteFormGroup!: FormGroup;
 
-  promoChecked = false;
   coutFabrication!:number;
 
 
@@ -21,27 +22,43 @@ export class FormComponent {
       prix: ["", [Validators.required, Validators.min(10), Validators.max(1000000)]],
       stock: ["", [Validators.required, Validators.min(1), Validators.max(10000)]],
       promotion: [false],
-      pourcentage_val_promo: [],
+      pourcentage_val_promo: [{value: '', disabled: true}],
       marge: ["", [Validators.required, this.validateMarge.bind(this)]],
       reference: ["REF-"],
-      photo: [null, [Validators.required, this.validateImage.bind(this),Validators.min(1), Validators.max(99)]],
-      categorie: [, [Validators.required, Validators.min(1)]],
+      photo: [null, [Validators.required, this.validateImage.bind(this)]],
       cout_fabrigation:[this.coutFabrication],
+      categorie: [, [Validators.required, Validators.min(1)]],
+      article_confections:[this.childTabArticles.getLines(), [this.validateAllArticleTypes]]
     });
   }
 
 
   onPromoCheckboxChange(event: Event) {
-      this.promoChecked = (event.target! as HTMLInputElement).checked;
+      const promoChecked = (event.target! as HTMLInputElement).checked;
 
-      if (this.promoChecked) {
-        this.articleVenteFormGroup.get('pourcentage_val_promo')?.setValidators([Validators.required]);
+      const pourcentageValPromoControl = this.articleVenteFormGroup.get('pourcentage_val_promo');
+
+      if (promoChecked) {
+        pourcentageValPromoControl?.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(99)
+        ]);
+        pourcentageValPromoControl?.enable();
       } else {
-        this.articleVenteFormGroup.get('pourcentage_val_promo')?.clearValidators();
+        pourcentageValPromoControl?.clearValidators();
+        pourcentageValPromoControl?.setValue("");
+        pourcentageValPromoControl?.disable();
       }
-      this.articleVenteFormGroup.get('pourcentage_val_promo')?.updateValueAndValidity();
+
+      pourcentageValPromoControl?.updateValueAndValidity();
   }
 
+  saveData(){
+    alert("send-12");
+  }
+
+//validation
   validateImage(control: any) {
     const file = control.value;
     
@@ -78,4 +95,10 @@ export class FormComponent {
     return null;
   }
 
+  validateAllArticleTypes() {
+    if(!(this.childTabArticles.getLines().length >= 3)){
+      return { invalidArticleConf: true };
+    }
+    return null;
+  }
 }

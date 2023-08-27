@@ -4,23 +4,34 @@
 <div class="alert h5" id="msg-info" role="alert" #msgInfo>
   <marquee loop="1" behavior="slide" scrollamount="150" direction="left" id="txt">A simple primary alert—check it out!</marquee>
 </div>
-<form class="g-3">
+<form class="g-3" (ngSubmit)="saveData()" [formGroup]="articleVenteFormGroup">
     <div class="row border border-3 mx-1 p-3">
         <div class="col-md-6">
-          <div class="form-group my-3">
+          <div class="form-group my-3" *ngIf="articleVenteFormGroup.get('libelle') as libelleCtrl">
             <label for="libelle">Libellé</label>
-            <input type="text" class="form-control" id="libelle" placeholder="Saisir le libellé">
+            <input type="text" class="form-control" id="libelle" placeholder="Saisir le libellé" formControlName="libelle" [ngClass]="{
+              'is-invalid': (libelleCtrl.touched || libelleCtrl.dirty) && libelleCtrl.invalid,
+              'is-valid': (libelleCtrl.touched || libelleCtrl.dirty) && libelleCtrl.valid
+            }">
             <div class="invalid-feedback">
+              <span *ngIf="libelleCtrl.errors?.['required']">Le libellé est obligatoire...</span>
+              <span *ngIf="libelleCtrl.errors?.['minlength']">Le libellé doit contenir minimun 5 caratères...</span>
+              <span *ngIf="libelleCtrl.errors?.['pattern']">Le libellé ne doit pas contenir des caractères spéciaux...</span>
             </div>
           </div>
-          <div class="form-group my-3">
+          <div class="form-group my-3" *ngIf="articleVenteFormGroup.get('stock') as stockCtrl">
             <label for="stock">Stock (quantité)</label>
-            <input type="number" class="form-control" id="stock" placeholder="Saisir le stock">
+            <input type="number" class="form-control" id="stock" placeholder="Saisir le stock" formControlName="stock" [ngClass]="{
+              'is-invalid': (stockCtrl.touched || stockCtrl.dirty) && stockCtrl.invalid,
+              'is-valid': (stockCtrl.touched || stockCtrl.dirty) && stockCtrl.valid
+            }">
             <div class="invalid-feedback">
+              <span *ngIf="stockCtrl.errors?.['required']">Le stock est obligatoire</span>
+              <span *ngIf="stockCtrl.errors?.['min'] || stockCtrl.errors?.['max']">Le stock doit être compris entre 1 et 10 000.</span>
             </div>
           </div>
 
-          <div class="row my-3">
+          <div class="row my-3" *ngIf="articleVenteFormGroup.get('pourcentage_val_promo') as pourcPromoCtrl">
             <div class="col-md-6">
                 <label for="promo-checkbox">Promotion</label>
                 <!-- <input type="checkbox" class="form-control" id="promo-checkbox"> -->
@@ -31,22 +42,38 @@
             </div>
             <div class="col-md-6">
                 <label for="promo-percentage">Pourcentage de la promotion <span class="text-danger">(%)</span></label>
-                <input type="number" class="form-control col-8" id="promo-percentage" [disabled]="!promoChecked" [required]="promoChecked">
-
+                <input type="number" class="form-control col-8" id="promo-percentage" formControlName="pourcentage_val_promo" [ngClass]="{
+                  'is-invalid': (pourcPromoCtrl.touched || pourcPromoCtrl.dirty) && pourcPromoCtrl.invalid,
+                  'is-valid': (pourcPromoCtrl.touched || pourcPromoCtrl.dirty) && pourcPromoCtrl.valid
+                }">
+                <div class="invalid-feedback">
+                  <span *ngIf="pourcPromoCtrl.errors?.['required']">La valeur en pourcentage de la promo est obligatoire</span>
+                  <span *ngIf="pourcPromoCtrl.errors?.['min'] || pourcPromoCtrl.errors?.['max']">La valeur en pourcentage de la promo compris entre 1 et 99.</span>
+                </div>
             </div>
           </div>
 
-          <div class="form-group my-3">
+          <div class="form-group my-3" *ngIf="articleVenteFormGroup.get('categorie') as categorieCtrl">
             <label for="categorie">Catégorie</label>
-            <select class="form-control text-primary" id="categorie">
+            <select class="form-control text-primary" id="categorie" formControlName="categorie" [ngClass]="{
+              'is-invalid': (categorieCtrl.touched || categorieCtrl.dirty) && categorieCtrl.invalid,
+              'is-valid': (categorieCtrl.touched || categorieCtrl.dirty) && categorieCtrl.valid
+            }">
+              <option value="null">***** Veuillez Selectionner *****</option>
             </select>
             <div class="invalid-feedback">
+              <span *ngIf="categorieCtrl.errors?.['required']">Le catégorie est obligatoire</span>
             </div>
           </div>
-          <div class="form-group my-3">
+          <div class="form-group my-3" *ngIf="articleVenteFormGroup.get('marge') as margeCtrl">
             <label for="marge">Marge/article</label>
-            <input type="number" class="form-control" id="marge" placeholder="Saisir la marge">
+            <input type="number" class="form-control" id="marge" placeholder="Saisir la marge" formControlName="marge" [ngClass]="{
+              'is-invalid': (margeCtrl.touched || margeCtrl.dirty) && margeCtrl.invalid,
+              'is-valid': (margeCtrl.touched || margeCtrl.dirty) && margeCtrl.valid
+            }">
             <div class="invalid-feedback">
+              <span *ngIf="margeCtrl.errors?.['required']">La marge est obligatoire. </span>
+              <span *ngIf="margeCtrl.errors?.['invalidMarge']"> La marge est doit être compris entre 5 000 f et le tiers du coût de fabrication </span>
             </div>
           </div>
           <div class="form-group my-3">
@@ -59,12 +86,22 @@
           
         </div>
         <div class="col-md-6 my-3">
-          <input type="file" id="img" style="display: none;" accept="image/*">
-          <label class="clickable-square border border-5 border-primary text-center" for="img" style="height: 18.7rem; width: 100%; background-image: url('https://img.freepik.com/vecteurs-libre/fond-lignes-bleues-dynamiques-degradees_23-2148995756.jpg?w=1380&t=st=1692294952~exp=1692295552~hmac=ba37d79910c10b883321ecb18e08bd5b1bc8659d2b1b821da57075e3729c310e');background-size: cover;background-position: center;">
-            <div class="text text-white" style="margin-top: 10%; font-size: 300%;" id="image">CLIQUER POUR CHOISIR UNE PHOTO</div>
-            <img class="bg-info" style="margin-top: .2%;"  alt="Image" height="99.2%" width="99.7%" >
-              
-          </label>
+          <div *ngIf="articleVenteFormGroup.get('photo') as photoCtrl">
+            <input type="file" id="img" style="display: none;" accept="image/*" formControlName="photo" [ngClass]="{
+              'is-invalid': (photoCtrl.touched || photoCtrl.dirty) && photoCtrl.invalid,
+              'is-valid': (photoCtrl.touched || photoCtrl.dirty) && photoCtrl.valid
+            }">
+            <label class="clickable-square border border-5 border-primary text-center" for="img" style="height: 18.7rem; width: 100%; background-image: url('https://img.freepik.com/vecteurs-libre/fond-lignes-bleues-dynamiques-degradees_23-2148995756.jpg?w=1380&t=st=1692294952~exp=1692295552~hmac=ba37d79910c10b883321ecb18e08bd5b1bc8659d2b1b821da57075e3729c310e');background-size: cover;background-position: center;">
+              <div class="text text-white" style="margin-top: 10%; font-size: 300%;" id="image">CLIQUER POUR CHOISIR UNE PHOTO</div>
+              <img class="bg-info" style="margin-top: .2%;"  alt="Image" height="99.2%" width="99.7%" >
+                
+            </label>
+            <div class="invalid-feedback">
+              <span *ngIf="photoCtrl.errors?.['required']">La photo est obligatoire</span>
+              <span *ngIf="photoCtrl.errors?.['invalidFormat']">La photo doit être un de ces format ('jpeg', 'png', 'jpg', 'gif')</span>
+              <span *ngIf="photoCtrl.errors?.['fileSizeExceeded']">La taille de la photo ne peut pas dépasser 2048 octets (2GO)</span>
+            </div>
+          </div>
           <div class="form-group my-3">
             <label for="ref">Référence (REF)</label>
             <input type="text" class="form-control" id="ref" disabled readonly>
@@ -77,11 +114,21 @@
           </div>
         </div>
 
-        <app-tab-article-conf class="bg-light border border-3" ></app-tab-article-conf>
+        <div *ngIf="articleVenteFormGroup.get('article_confections') as article_confectionsCtrl">
+          <app-tab-article-conf class="bg-light border border-3" formControlName="article_confections" [ngClass]="{
+            'is-invalid': (article_confectionsCtrl.touched || article_confectionsCtrl.dirty) && article_confectionsCtrl.invalid,
+            'is-valid': (article_confectionsCtrl.touched || article_confectionsCtrl.dirty) && article_confectionsCtrl.valid
+          }"></app-tab-article-conf>
+          <div class="invalid-feedback">
+            <span *ngIf="article_confectionsCtrl.errors?.['required']">Le tableau article de confection est bligaoire est obligatoire</span>
+            <span *ngIf="article_confectionsCtrl.errors?.['invalidArticleConf']">La photo doit être un de ces format ('jpeg', 'png', 'jpg', 'gif')</span>
+            <!-- <span *ngIf="article_confectionsCtrl.errors?.['fileSizeExceeded']">La taille de la photo ne peut pas dépasser 2048 octets (2GO)</span> -->
+          </div>
+        </div>
 
         <div class="row mt-3">
             <div class="col text-center">
-                <button class="btn btn-primary py-3 px-5" type="submit" ><i class="bi bi-plus-circle"></i> Enregistrer (Ajout)</button>
+                <button class="btn btn-primary py-3 px-5" type="submit" [disabled]="!articleVenteFormGroup.valid" ><i class="bi bi-plus-circle"></i> Enregistrer (Ajout)</button>
             </div>
         </div>
     </div>

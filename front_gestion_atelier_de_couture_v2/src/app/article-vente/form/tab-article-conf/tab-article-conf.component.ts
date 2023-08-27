@@ -22,4 +22,8 @@ export class TabArticleConfComponent {
       if(this.lines.length > 3) this.lines.splice(index, 1);
   }
 
+  getLines(){
+    return this.lines;
+  }
+
 }
