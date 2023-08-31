@@ -1,35 +1,72 @@
-<div class="container">
-    <div class="row my-4 bg-primary">
-        <!-- Ligne 1 -->
-        <div class="col-md-9  d-flex align-items-center text-white">
-            <h4>Liste des articles de confections nécessaires</h4>
+<div class="container " style="box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);">
+    <form [formGroup]="form">
+      <div class="row my-4 bg-primary">
+        <div class="col-md-9 d-flex align-items-center text-white">
+          <h4>Liste des articles de confections nécessaires</h4>
         </div>
         <div class="col-md-3 bg-light border border-3 border-primary text-center">
-            <a class="btn btn-outline-primary px-4 my-2" (click)="addLine()" style="font-size: 1.2rem;"><i class="bi bi-plus-circle"></i> Ajouter une ligne</a>
+          <button class="btn btn-outline-primary px-4 my-2" type="button" (click)="addItem()" style="font-size: 1.2rem;">
+            <i class="bi bi-plus-circle"></i> Ajouter une ligne
+          </button>
         </div>
-    </div>
-
-    <div class="row">
-        <!-- Ligne 2 -->
+      </div>
+  
+      <div class="row row2">
         <div class="col-md-12">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Libellé</th>
-                        <th>Quantité</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let line of lines; let i = index">
-                        <td><input type="text" class="form-control" [(ngModel)]="line.label"></td>
-                        <td><input type="number" class="form-control" [(ngModel)]="line.quantity"></td>
-                        <td>
-                            <a class="btn btn-danger px-3" (click)="removeLine(i)"><i class="bi bi-trash"></i> Supprimer</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Libellé</th>
+                <th>Quantité</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody formArrayName="items" [ngClass]="getBorderClasses(items)">
+              <ng-container *ngFor="let line of items.controls; let i = index">
+                <tr [formGroupName]="i">
+                  <td class="w-50" *ngIf="line.get('libelle') as libelleCtrl">
+                    <ng-select class="form-control" style="width: 100%;" formControlName="libelle" placeholder="Libellé {{ i + 1 }}"
+                      [ngClass]="{
+                        'is-invalid': (libelleCtrl.touched || libelleCtrl.dirty) && libelleCtrl.invalid,
+                        'is-valid': (libelleCtrl.touched || libelleCtrl.dirty) && libelleCtrl.valid
+                      }"> 
+                      <!-- methode 1 -->
+                      <!-- [items]="articleConfections" 
+                      bindLabel="libelle" 
+                      bindValue="id" 
+                      [(ngModel)]="selectedArticleConfections" -->
+                      <ng-option *ngFor="let article of articleConfections" [value]="article.id">{{ article.libelle }}</ng-option>
+                    </ng-select>
+                    <div class="invalid-feedback" >
+                      <span *ngIf="libelleCtrl.errors?.['required']">Le libellé est obligatoire...</span>
+                      <span *ngIf="libelleCtrl.errors?.['minlength']">Le libellé doit contenir minimun 5 caratères...</span>
+                      <span *ngIf="libelleCtrl.errors?.['pattern']">Le libellé ne doit pas contenir des caractères spéciaux...</span>
+                      <span *ngIf="libelleCtrl.errors?.['invalidUniq']">Le libellé doit être unique...</span>
+                    </div>
+                  </td>
+                  <td *ngIf="line.get('quantite') as quantiteCtrl">
+                    <input type="number" class="form-control mt-2" formControlName="quantite" placeholder="Quantité {{ i + 1 }}"
+                      [ngClass]="{
+                        'is-invalid': (quantiteCtrl.touched || quantiteCtrl.dirty) && quantiteCtrl.invalid,
+                        'is-valid': (quantiteCtrl.touched || quantiteCtrl.dirty) && quantiteCtrl.valid
+                      }">
+                    <div class="invalid-feedback" >
+                      <span *ngIf="quantiteCtrl.errors?.['required']">La quantité est obligatoire...</span>
+                      <span *ngIf="quantiteCtrl.errors?.['invalidQuantite']">{{ quantiteCtrl.errors!['message'] }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <a class="btn btn-danger px-3 mt-2" (click)="removeItem(i)"><i class="bi bi-trash"></i> Supprimer</a>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
         </div>
-    </div>
-</div>
+      </div>
+      <div class="text-danger text-center my-2" *ngIf="(form.touched || form.dirty)" >
+        <span class="h6" *ngIf="articleConfections && validateItems() != null">{{validateItems()!['message']}} ...</span>
+      </div>
+    </form>
+  </div>
+  

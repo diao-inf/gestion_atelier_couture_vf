@@ -1,4 +1,11 @@
 <div class="container shadow-lg mt-5 p-5 mb-5">
-    <app-form></app-form>
+    <app-form 
+        (onSubmitEventEmmitter) = "onSubmitEventEmmitter($event)"
+    >
+    </app-form>
+
+    <app-liste
+        (deleteArticleEvent)="recevoirArticleOnDelete($event)"
+    ></app-liste>
 </div>
 

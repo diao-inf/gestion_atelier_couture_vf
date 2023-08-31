@@ -4,12 +4,12 @@
 <div class="alert h5" id="msg-info" role="alert" #msgInfo>
   <marquee loop="1" behavior="slide" scrollamount="150" direction="left" id="txt">A simple primary alert—check it out!</marquee>
 </div>
-<form class="g-3" (ngSubmit)="saveData()" [formGroup]="articleVenteFormGroup">
-    <div class="row border border-3 mx-1 p-3">
-        <div class="col-md-6">
+<form class="g-3" (ngSubmit)="saveData()" [formGroup]="articleVenteFormGroup" enctype="multipart/form-data">
+    <div class="row border border-3 mx-1 p-3  bg-light">
+        <div class="col-md-6 md-0">
           <div class="form-group my-3" *ngIf="articleVenteFormGroup.get('libelle') as libelleCtrl">
             <label for="libelle">Libellé</label>
-            <input type="text" class="form-control" id="libelle" placeholder="Saisir le libellé" formControlName="libelle" [ngClass]="{
+            <input type="text" class="form-control" id="libelle" placeholder="Saisir le libellé" (change)="onLibelleChange($event)" formControlName="libelle" [ngClass]="{
               'is-invalid': (libelleCtrl.touched || libelleCtrl.dirty) && libelleCtrl.invalid,
               'is-valid': (libelleCtrl.touched || libelleCtrl.dirty) && libelleCtrl.valid
             }">
@@ -17,6 +17,7 @@
               <span *ngIf="libelleCtrl.errors?.['required']">Le libellé est obligatoire...</span>
               <span *ngIf="libelleCtrl.errors?.['minlength']">Le libellé doit contenir minimun 5 caratères...</span>
               <span *ngIf="libelleCtrl.errors?.['pattern']">Le libellé ne doit pas contenir des caractères spéciaux...</span>
+              <span *ngIf="libelleCtrl.errors?.['invalidUniq']">Le libellé doit être unique...</span>
             </div>
           </div>
           <div class="form-group my-3" *ngIf="articleVenteFormGroup.get('stock') as stockCtrl">
@@ -31,12 +32,29 @@
             </div>
           </div>
 
+          
+
+          <div class="form-group my-3" *ngIf="articleVenteFormGroup.get('categorie') as categorieCtrl">
+            <label for="categorie">Catégorie</label>
+            <select type="number" class="form-control text-primary" id="categorie" (change)="onCategoryChange($event)" formControlName="categorie" [ngClass]="{
+              'is-invalid': (categorieCtrl.touched || categorieCtrl.dirty) && categorieCtrl.invalid,
+              'is-valid': (categorieCtrl.touched || categorieCtrl.dirty) && categorieCtrl.valid
+            }">
+              <option [ngValue]="null">***** Veuillez Selectionner *****</option>
+              <option *ngFor="let categorie of categories" [value]="categorie.id">{{ categorie.libelle }}</option>
+
+            </select>
+            <div class="invalid-feedback">
+              <span *ngIf="categorieCtrl.errors?.['required']">Le catégorie est obligatoire</span>
+            </div>
+          </div>
+
           <div class="row my-3" *ngIf="articleVenteFormGroup.get('pourcentage_val_promo') as pourcPromoCtrl">
             <div class="col-md-6">
                 <label for="promo-checkbox">Promotion</label>
                 <!-- <input type="checkbox" class="form-control" id="promo-checkbox"> -->
                 <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="promo-checkbox" (change)="onPromoCheckboxChange($event)">
+                    <input type="checkbox" class="form-check-input" id="promo-checkbox" (change)="onPromoCheckboxChange($event)" formControlName="promotion">
                     <label class="form-check-label" for="promo-checkbox"><u class="fst-italic" > Cocher pour dire OUI</u></label>
                   </div>
             </div>
@@ -52,48 +70,18 @@
                 </div>
             </div>
           </div>
-
-          <div class="form-group my-3" *ngIf="articleVenteFormGroup.get('categorie') as categorieCtrl">
-            <label for="categorie">Catégorie</label>
-            <select class="form-control text-primary" id="categorie" formControlName="categorie" [ngClass]="{
-              'is-invalid': (categorieCtrl.touched || categorieCtrl.dirty) && categorieCtrl.invalid,
-              'is-valid': (categorieCtrl.touched || categorieCtrl.dirty) && categorieCtrl.valid
-            }">
-              <option value="null">***** Veuillez Selectionner *****</option>
-            </select>
-            <div class="invalid-feedback">
-              <span *ngIf="categorieCtrl.errors?.['required']">Le catégorie est obligatoire</span>
-            </div>
-          </div>
-          <div class="form-group my-3" *ngIf="articleVenteFormGroup.get('marge') as margeCtrl">
-            <label for="marge">Marge/article</label>
-            <input type="number" class="form-control" id="marge" placeholder="Saisir la marge" formControlName="marge" [ngClass]="{
-              'is-invalid': (margeCtrl.touched || margeCtrl.dirty) && margeCtrl.invalid,
-              'is-valid': (margeCtrl.touched || margeCtrl.dirty) && margeCtrl.valid
-            }">
-            <div class="invalid-feedback">
-              <span *ngIf="margeCtrl.errors?.['required']">La marge est obligatoire. </span>
-              <span *ngIf="margeCtrl.errors?.['invalidMarge']"> La marge est doit être compris entre 5 000 f et le tiers du coût de fabrication </span>
-            </div>
-          </div>
-          <div class="form-group my-3">
-            <label for="cout">Coût de fabrication</label>
-            <input type="number" class="form-control" id="cout" disabled readonly>
-            <div class="invalid-feedback">
-            </div>
-          </div>
-          
           
         </div>
-        <div class="col-md-6 my-3">
+
+        <div class="col-md-6 mt-3 md-0">
           <div *ngIf="articleVenteFormGroup.get('photo') as photoCtrl">
-            <input type="file" id="img" style="display: none;" accept="image/*" formControlName="photo" [ngClass]="{
+            <input type="file" id="img" style="display: none;" accept="image/*" formControlName="photo" (change)="onImageChange($event)" [ngClass]="{
               'is-invalid': (photoCtrl.touched || photoCtrl.dirty) && photoCtrl.invalid,
               'is-valid': (photoCtrl.touched || photoCtrl.dirty) && photoCtrl.valid
             }">
             <label class="clickable-square border border-5 border-primary text-center" for="img" style="height: 18.7rem; width: 100%; background-image: url('https://img.freepik.com/vecteurs-libre/fond-lignes-bleues-dynamiques-degradees_23-2148995756.jpg?w=1380&t=st=1692294952~exp=1692295552~hmac=ba37d79910c10b883321ecb18e08bd5b1bc8659d2b1b821da57075e3729c310e');background-size: cover;background-position: center;">
-              <div class="text text-white" style="margin-top: 10%; font-size: 300%;" id="image">CLIQUER POUR CHOISIR UNE PHOTO</div>
-              <img class="bg-info" style="margin-top: .2%;"  alt="Image" height="99.2%" width="99.7%" >
+              <div *ngIf="!url" class="text text-white" style="margin-top: 10%; font-size: 300%;" id="image">CLIQUER POUR CHOISIR UNE PHOTO</div>
+              <img *ngIf="url" class="bg-info" style="margin-top: .2%;"  alt="Image" height="99.2%" width="99.7%" [src]="url">
                 
             </label>
             <div class="invalid-feedback">
@@ -102,33 +90,52 @@
               <span *ngIf="photoCtrl.errors?.['fileSizeExceeded']">La taille de la photo ne peut pas dépasser 2048 octets (2GO)</span>
             </div>
           </div>
+          
+
+        </div>
+
+        <app-tab-article-conf 
+          (coutFabricationTotalChanged)="onCoutFabricationTotalChanged($event)"
+          (itemsArticleConfChanged) = "onItemsArticleConfChanged($event)"
+        >
+        </app-tab-article-conf>
+        
+        <div class="col-md-6 md-3 mt-1">
+          <div class="form-group my-3" *ngIf="articleVenteFormGroup.get('marge') as margeCtrl">
+            <label for="marge">Marge/article</label>
+            <input type="number" class="form-control" id="marge" placeholder="Saisir la marge" formControlName="marge" [ngClass]="{
+              'is-invalid': (margeCtrl.touched || margeCtrl.dirty) && margeCtrl.invalid,
+              'is-valid': (margeCtrl.touched || margeCtrl.dirty) && margeCtrl.valid
+            }">
+            <div class="invalid-feedback">
+              <span *ngIf="margeCtrl.errors?.['required']">La marge est obligatoire. </span>
+              <span *ngIf="margeCtrl.errors?.['invalidMarge']"> La marge est doit être compris entre 500 f et le tiers du coût de fabrication </span>
+            </div>
+          </div>
+          <div class="form-group my-3">
+            <label for="cout">Coût de fabrication</label>
+            <input type="number" class="form-control" id="cout" formControlName="cout_fabrigation">
+            <div class="invalid-feedback">
+            </div>
+          </div>
+          
+        </div>
+        <div class="col-md-6 md-3 mt-1">
           <div class="form-group my-3">
             <label for="ref">Référence (REF)</label>
-            <input type="text" class="form-control" id="ref" disabled readonly>
+            <input type="text" class="form-control" id="ref"  formControlName="reference" >
           </div>
           <div class="form-group my-3">
             <label for="prix">Prix de ventes</label>
-            <input type="number" class="form-control" id="prix" disabled readonly>
+            <input type="number" class="form-control" id="prix" formControlName="prix">
             <div class="invalid-feedback">
             </div>
           </div>
         </div>
 
-        <div *ngIf="articleVenteFormGroup.get('article_confections') as article_confectionsCtrl">
-          <app-tab-article-conf class="bg-light border border-3" formControlName="article_confections" [ngClass]="{
-            'is-invalid': (article_confectionsCtrl.touched || article_confectionsCtrl.dirty) && article_confectionsCtrl.invalid,
-            'is-valid': (article_confectionsCtrl.touched || article_confectionsCtrl.dirty) && article_confectionsCtrl.valid
-          }"></app-tab-article-conf>
-          <div class="invalid-feedback">
-            <span *ngIf="article_confectionsCtrl.errors?.['required']">Le tableau article de confection est bligaoire est obligatoire</span>
-            <span *ngIf="article_confectionsCtrl.errors?.['invalidArticleConf']">La photo doit être un de ces format ('jpeg', 'png', 'jpg', 'gif')</span>
-            <!-- <span *ngIf="article_confectionsCtrl.errors?.['fileSizeExceeded']">La taille de la photo ne peut pas dépasser 2048 octets (2GO)</span> -->
-          </div>
-        </div>
-
         <div class="row mt-3">
             <div class="col text-center">
-                <button class="btn btn-primary py-3 px-5" type="submit" [disabled]="!articleVenteFormGroup.valid" ><i class="bi bi-plus-circle"></i> Enregistrer (Ajout)</button>
+                <button class="btn btn-primary py-3 px-5" type="submit" [disabled]="!articleVenteFormGroup.valid || !validFormChild" ><i class="bi bi-plus-circle"></i> Enregistrer (Ajout)</button>
             </div>
         </div>
     </div>
