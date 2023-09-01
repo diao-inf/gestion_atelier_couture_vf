@@ -1,5 +1,5 @@
 import { ArticleConfection } from "./article-confection"
-import { ArticleVente } from "./article-vente"
+import { ArticleVente, ArticleVentePaginate } from "./article-vente"
 import { Categorie } from "./categorie"
 import { Fournisseur } from "./fournisseur"
 
@@ -14,4 +14,5 @@ export interface AllData {
     fournisseurs: Fournisseur[]
     articleConfection: ArticleConfection[]
     articleVentes: ArticleVente[]
+    articleVentesPaginate: ArticleVentePaginate
 }

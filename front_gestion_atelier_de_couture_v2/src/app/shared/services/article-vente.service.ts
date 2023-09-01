@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment.development';
-import { ArticleVente } from '../interfaces/article-vente';
+import { ArticleVente, ArticleVentePaginate } from '../interfaces/article-vente';
 import { ApiResponse } from '../interfaces/api-response';
 import { Observable, catchError, tap, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -37,6 +37,27 @@ export class ArticleVenteService {
     return this.httpClient.delete<ApiResponse<ArticleVente>>(apiUrl);
   }
 
+  update(article: ArticleVente): Observable<ApiResponse<ArticleVente>> {
+    const apiUrl = `${this.endPointUrl}/${article.id}`;
+    const formData = objectToFormData(article);
+    formData.append('_method', 'PUT');
+    
+    return this.httpClient.post<ApiResponse<ArticleVente>>(apiUrl, formData);
+  }
+
+  paginate(id: number): Observable<ApiResponse<ArticleVentePaginate>> {
+    const apiUrl = `${this.endPointUrl}/paginations?page=${id}`;
+    
+    return this.httpClient.get<ApiResponse<ArticleVentePaginate>>(apiUrl).pipe(
+      tap(response => {
+        console.log('Données reçues :', response);
+      }),
+      catchError(error => {
+        console.error('Une erreur s\'est produite:', error);
+        return throwError(()=>new Error("Erreur lors de l'insertion des données."));
+      })
+    );
+  }
   
 }
 
@@ -49,7 +70,6 @@ function objectToFormData(obj: any, separateurTab:string=","): FormData {
       
     } else if(typeof value === 'number') {
       formData.append(key, value.toString());
-      console.log(formData, "appppppp----------------", formData.get(key));
       
     }else if(typeof value === 'string') {
 

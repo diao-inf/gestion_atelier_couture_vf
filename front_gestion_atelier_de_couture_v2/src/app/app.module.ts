@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ListeComponent } from './article-vente/liste/liste.component';
 import { ItemComponent } from './article-vente/liste/item/item.component';
+import { PaginationComponent } from './shared/composant/pagination/pagination.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { ItemComponent } from './article-vente/liste/item/item.component';
     FormComponent,
     TabArticleConfComponent,
     ListeComponent,
-    ItemComponent
+    ItemComponent,
+    PaginationComponent
   ],
   imports: [
     BrowserModule,

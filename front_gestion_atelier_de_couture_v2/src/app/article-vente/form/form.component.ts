@@ -6,6 +6,8 @@ import { ArticleVente } from 'src/app/shared/interfaces/article-vente';
 import { ArticleConfection } from 'src/app/shared/interfaces/article-confection';
 import { AllData } from 'src/app/shared/interfaces/api-response';
 import { TabaItems } from 'src/app/shared/interfaces/utils';
+import { environment } from 'src/environments/environment.development';
+import { Mode } from 'src/app/shared/enums/enums';
 
 @Component({
   selector: 'app-form',
@@ -30,6 +32,7 @@ export class FormComponent{
 
   coutFabrication!:number;
   validFormChild:boolean =false;
+  modeEtat: Mode = Mode.AJOUT;
 
   libRef:string = "";
   catRef:string = "";
@@ -41,7 +44,7 @@ export class FormComponent{
     this.articleVenteFormGroup = this.fb.group({
       id: [0],
       libelle: ["", [Validators.required, Validators.minLength(5), Validators.pattern('[a-zA-Z0-9 ]*'), this.validateUniqueLibelle.bind(this)]], // ,[this.uniqueLibelleValidator.bind(this)]
-      prix: [{value: null, disabled: true}, [Validators.required, Validators.min(10), Validators.max(1000000)]],
+      prix: [{value: 0.00, disabled: true}],
       stock: [, [Validators.required, Validators.min(1), Validators.max(10000)]],
       promotion: [false],
       pourcentage_val_promo: [{value: '', disabled: true}],
@@ -127,16 +130,18 @@ export class FormComponent{
     if (marge < coutFabricationMin || marge > coutFabricationMax) {
       return { invalidMarge: true };
     }
-
-    this.articleVenteFormGroup.get("prix")?.setValue(this.coutFabrication+marge);
+    if(marge && this.coutFabrication)
+      this.articleVenteFormGroup.get("prix")?.setValue(this.coutFabrication+marge);
   
     return null;
   }
 
   validateUniqueLibelle(control: any) {
-    const libelle = control.value.trim().toLowerCase();
-    if(this.articleVentes?.some(article => article.libelle.toLowerCase() === libelle)){
-      return { invalidUniq: true};
+    if(control.value){
+      const libelle = control.value.trim().toLowerCase();
+      if(this.articleVentes?.some(article => article.libelle.toLowerCase() === libelle)){
+        return { invalidUniq: true};
+      }
     }
     return null;
   }
@@ -199,6 +204,26 @@ export class FormComponent{
     } else {
       alert('Choix incorrect');
     }
+  }
+
+  chargerArticleVenteFormGroup(article: ArticleVente){
+    this.articleVenteFormGroup.get("id")?.setValue(article.id);
+    this.articleVenteFormGroup.get("stock")?.setValue(article.stock);
+    this.articleVenteFormGroup.get("marge")?.setValue(article.marge);
+    this.articleVenteFormGroup.get("prix")?.setValue(article.prix);
+    this.articleVenteFormGroup.get("libelle")?.setValue(article.libelle);
+    this.articleVenteFormGroup.get("reference")?.setValue(article.reference);
+    this.articleVenteFormGroup.get("categorie")?.setValue((article.categorie as Categorie).id);
+    this.articleVenteFormGroup.get("quantites")?.setValue([]);
+    this.articleVenteFormGroup.get("promotion")?.setValue(article.promotion);
+    this.articleVenteFormGroup.get("cout_fabrigation")?.setValue(article.cout_fabrigation);
+    this.articleVenteFormGroup.get("article_confections")?.setValue([]);
+    this.articleVenteFormGroup.get("pourcentage_val_promo")?.setValue(article.pourcentage_val_promo);
+
+    const cleanImageUrl = (article.photo as string).replace('/storage', '');
+    this.url = `${environment.api.baseUrlImage}/${cleanImageUrl}`;
+
+    this.modeEtat = Mode.EDIT;
   }
 }
 

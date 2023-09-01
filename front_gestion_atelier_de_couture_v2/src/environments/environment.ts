@@ -1,5 +1,6 @@
 export const environment = {
     api:{
-        baseUrl: ''
+        baseUrl: '',
+        baseUrlImage: ''
     }
 };

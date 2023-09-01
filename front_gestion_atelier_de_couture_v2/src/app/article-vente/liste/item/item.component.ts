@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ArticleVente } from 'src/app/shared/interfaces/article-vente';
 import { Categorie } from 'src/app/shared/interfaces/categorie';
+import { environment } from 'src/environments/environment.development';
 
 @Component({
   selector: 'app-item',
@@ -9,8 +10,8 @@ import { Categorie } from 'src/app/shared/interfaces/categorie';
 })
 export class ItemComponent {
   @Input() InputArticle!: ArticleVente;
-  // @Output() editClicked = new EventEmitter<Article>();
-  @Output() eventEmittedDelete = new EventEmitter<ArticleVente>();
+  // @Output() eventEmittedUpdate = new EventEmitter<ArticleVente>();
+  @Output() eventEmittedDeleteOrUpdate = new EventEmitter<ArticleVente | number>();
 
   buttonText = 'Supprimer';
   showConfirmation = false;
@@ -19,13 +20,14 @@ export class ItemComponent {
 
 
   editer(item: ArticleVente){
-    // this.editClicked.emit(item);
+    // this.eventEmittedUpdate.emit(item);
+    this.eventEmittedDeleteOrUpdate.emit(item)
     
   }
 
-  supprimer(item: ArticleVente){
+  supprimer(item: number){
     if (this.showConfirmation) {
-      this.eventEmittedDelete.emit(item)
+      this.eventEmittedDeleteOrUpdate.emit(item)
     } else {
       this.showConfirmation = true;
       this.updateCountdown();
@@ -59,7 +61,8 @@ export class ItemComponent {
   getFullImageUrl(relativePath: string | File): string {
     if (relativePath && typeof relativePath === 'string') {
       const cleanImageUrl = relativePath.replace('/storage', '');
-      return `http://localhost:8000/public/Images${cleanImageUrl}`;
+    
+      return `${environment.api.baseUrlImage}/${cleanImageUrl}`;
     }
     return '';
   }

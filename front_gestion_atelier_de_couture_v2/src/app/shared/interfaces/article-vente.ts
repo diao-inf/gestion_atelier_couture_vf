@@ -1,4 +1,4 @@
-import { AbstractModelArticle } from "./abstract-model"
+import { AbstractModelArticle, Paginate } from "./abstract-model"
 import { ArticleConfection } from "./article-confection"
 
 export interface ArticleVente extends AbstractModelArticle {
@@ -8,4 +8,8 @@ export interface ArticleVente extends AbstractModelArticle {
   cout_fabrigation: number
   quantites?: number[]
   article_confections: ArticleConfection[] | number[]
+}
+
+export interface ArticleVentePaginate extends Paginate{
+  data: ArticleVente[]
 }

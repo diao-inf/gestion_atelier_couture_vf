@@ -6,7 +6,7 @@
     <td class="col">{{ getCategorieLibelle(InputArticle.categorie) }}</td>
     <td class="col"><button class="btn btn-outline-primary px-4" (click)="editer(InputArticle)"><i class="bi bi-pencil-square"></i> Éditer</button></td>
     <td class="col">
-        <button class="btn btn-outline-danger px-2"  (click)="supprimer(InputArticle)" [ngClass]="buttonClass"> <i class="bi bi-trash"></i> {{ buttonText }}</button>
+        <button class="btn btn-outline-danger px-2"  (click)="supprimer(InputArticle.id!)" [ngClass]="buttonClass"> <i class="bi bi-trash"></i> {{ buttonText }}</button>
         <div [ngClass]="{'confirmation-message': showConfirmation}"></div>
     </td>
 </tr>

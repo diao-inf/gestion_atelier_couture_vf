@@ -87,10 +87,24 @@ export class TabArticleConfComponent {
     
     let valid: boolean = false;
     
-    if (!categoriesFound.includes('tissu') || !categoriesFound.includes('bouton') || !categoriesFound.includes('fil')) {
+    if (!categoriesFound.includes('tissu')) {
       // this.form.markAsPending(); // Marquer le formulaire comme en attente
       valid =false;
-      return { invalidItems: true, message: 'Au moins un objet de chaque type (tissu, bouton et fil) doit être sélectionné.' };
+      return { invalidItems: true, message: 'Au moins un objet de chaque type ( tissu ) doit être sélectionné.' };
+      
+    }
+
+    if ( !categoriesFound.includes('bouton')) {
+      // this.form.markAsPending(); // Marquer le formulaire comme en attente
+      valid =false;
+      return { invalidItems: true, message: 'Au moins un objet de chaque type ( bouton ) doit être sélectionné.' };
+      
+    }
+
+    if (!categoriesFound.includes('fil')) {
+      // this.form.markAsPending(); // Marquer le formulaire comme en attente
+      valid =false;
+      return { invalidItems: true, message: 'Au moins un objet de chaque type ( fil ) doit être sélectionné.' };
       
     }
 
